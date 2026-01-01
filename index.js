@@ -2,83 +2,55 @@ const { Client, LocalAuth } = require('whatsapp-web.js');
 const qrcode = require('qrcode-terminal');
 const axios = require('axios');
 
-// --- 1. KONFIGURASI API GEMINI 2.0 FLASH ---
-const API_KEY = "AIzaSyBzxNr68JjBPG4wNC9NK-hl9opRDQ1kBaw"; 
-const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`;
+// --- PENGATURAN BOT ---
+const NOMOR_BOT = '6285156906427'; // Nomor Bot lu yang baru, Wan!
+const API_KEY_GEMINI = 'AIzaSyBzxNr68JjBPG4wNC9NK-hl9opRDQ1kBaw'; 
+const URL_GEMINI = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
 
 const client = new Client({
     authStrategy: new LocalAuth(),
     puppeteer: {
         handleSIGINT: false,
-        // Konfigurasi ini buat bypass error library di Replit
-        args: [
-            '--no-sandbox', 
-            '--disable-setuid-sandbox',
-            '--disable-dev-shm-usage',
-            '--single-process',
-            '--no-zygote'
-        ]
+        args: ['--no-sandbox', '--disable-setuid-sandbox']
     }
 });
 
-const nomorPapa = '62895320302320@c.us';
-const daftarMala = ['6282246827390@c.us', '6281343403421@c.us']; 
-
-async function chatAI(pesan, instruksi) {
-    try {
-        await new Promise(resolve => setTimeout(resolve, 5000)); 
-        const response = await axios.post(API_URL, {
-            contents: [{ parts: [{ text: instruksi + "\n\nChat: " + pesan }] }]
-        });
-        if (response.data.candidates) {
-            return response.data.candidates[0].content.parts[0].text;
-        }
-    } catch (err) {
-        console.error("LOG GOOGLE:", err.response ? err.response.status : err.message);
-        return null;
-    }
-}
-
-client.on('qr', qr => {
-    console.log('QR Code muncul (abaikan saja, kita pakai Pairing Code)...');
-    qrcode.generate(qr, {small: true});
+client.on('qr', (qr) => {
+    console.log('SCAN QR INI JIKA PAIRING GAGAL:');
+    qrcode.generate(qr, { small: true });
 });
 
-client.on('ready', async () => { 
-    console.log('----------------------------');
-    console.log('Yui Cloud Online! 🚀🧸'); 
-    console.log('----------------------------');
-    
-    try {
-        await client.sendMessage(nomorPapa, "Halo Papa! Yui V.68 udah Online. Tes respon dong!");
-        console.log('Pesan perkenalan terkirim ke nomor Papa.');
-    } catch (err) {
-        console.log('Bot ready, tapi gagal kirim pesan awal.');
-    }
+client.on('ready', () => {
+    console.log('Bot Yui V.68 udah Online, Wan! Siap layanin tester lu di 0895320302320.');
 });
 
 client.on('message', async (msg) => {
-    let prompt = "Lu Yui, asisten Papa Ridwan. Bahasa lu-gw santai.";
-    if (msg.from === nomorPapa || daftarMala.includes(msg.from)) {
-        const balasan = await chatAI(msg.body, prompt);
-        if (balasan) msg.reply(balasan);
+    // Bot cuma bales chat, lu bisa tes dari nomor tester lu tadi
+    if (msg.body) {
+        try {
+            const response = await axios.post(`${URL_GEMINI}?key=${API_KEY_GEMINI}`, {
+                contents: [{ parts: [{ text: msg.body }] }]
+            });
+            const aiReply = response.data.candidates[0].content.parts[0].text;
+            msg.reply(aiReply);
+        } catch (error) {
+            console.error('Error Gemini:', error.response ? error.response.data : error.message);
+        }
     }
 });
 
-client.initialize();
-
-// --- JURUS PAIRING CODE (LOGIN VIA NOMOR 0851...) ---
-setTimeout(async () => {
+async function startBot() {
     try {
-        const code = await client.getPairingCode('6285156906427'); 
-        console.log('\n============================');
-        console.log('MASUKIN KODE INI DI WA LU:');
-        console.log('👉 ' + code + ' 👈');
-        console.log('============================\n');
+        console.log('SEDANG MENGAMBIL KODE PAIRING UNTUK ' + NOMOR_BOT + '...');
+        await client.initialize();
+        const pairingCode = await client.requestPairingCode(NOMOR_BOT);
+        console.log('----------------------------');
+        console.log('KODE PAIRING LU ADALAH:', pairingCode);
+        console.log('----------------------------');
+        console.log('Buka WA Nomor Bot > Perangkat Tautan > Tautkan dg nomor telepon.');
     } catch (err) {
-        console.log('Gagal ambil Pairing Code. Cek Console buat error detail.');
+        console.log('Error detail:', err.message);
     }
-}, 10000);
+}
 
-
-
+startBot();
