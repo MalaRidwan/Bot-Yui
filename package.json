@@ -1,0 +1,22 @@
+{
+  "name": "bot-yui",
+  "version": "1.0.0",
+  "description": "WhatsApp Bot menggunakan Gemini AI 2.0 Flash",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "keywords": [
+    "whatsapp",
+    "bot",
+    "gemini",
+    "ai"
+  ],
+  "author": "MalaRidwan",
+  "license": "ISC",
+  "dependencies": {
+    "whatsapp-web.js": "latest",
+    "qrcode-terminal": "latest",
+    "axios": "latest"
+  }
+}
