@@ -3,7 +3,7 @@ const qrcode = require('qrcode-terminal');
 const axios = require('axios');
 
 // --- PENGATURAN BOT ---
-const NOMOR_BOT = '6285156906427'; 
+const NOMOR_BOT = '6285156906427'; // Ganti ke nomor WA yang mau jadi bot (pake 628)
 const API_KEY_GEMINI = 'AIzaSyBzxNr68JjBPG4wNC9NK-hl9opRDQ1kBaw'; 
 const URL_GEMINI = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
 
@@ -19,7 +19,9 @@ const client = new Client({
             '--no-first-run',
             '--no-zygote',
             '--single-process',
-            '--disable-gpu'
+            '--disable-gpu',
+            // Penyamaran biar gak error "Evaluation failed: t"
+            '--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
         ]
     }
 });
@@ -31,12 +33,14 @@ client.on('qr', (qr) => {
 
 client.on('ready', () => {
     console.log('----------------------------');
-    console.log('Yui V.70 ONLINE! SIAP TEMPUR!');
+    console.log('BOT YUI ONLINE, WAN!');
+    console.log('Silakan tes chat dari 0895320302320');
     console.log('----------------------------');
 });
 
 client.on('message', async (msg) => {
-    if (msg.body) {
+    // Lu cuma mau tes pake nomor lu kan? Ini filternya:
+    if (msg.from === '62895320302320@c.us') {
         try {
             const response = await axios.post(`${URL_GEMINI}?key=${API_KEY_GEMINI}`, {
                 contents: [{ parts: [{ text: msg.body }] }]
@@ -51,24 +55,21 @@ client.on('message', async (msg) => {
 
 async function startBot() {
     try {
-        console.log('SEDANG MENGINISIALISASI BROWSER...');
+        console.log('INISIALISASI...');
         await client.initialize();
         
-        // Jeda 10 detik biar halaman WA Web ke-load sempurna sebelum minta kode
-        console.log('MENUNGGU KONEKSI STABIL (10 DETIK)...');
+        console.log('MENUNGGU 15 DETIK (BIAR STABIL)...');
         setTimeout(async () => {
             try {
-                console.log('MENGAMBIL KODE PAIRING UNTUK: ' + NOMOR_BOT);
+                console.log('MINTA KODE PAIRING...');
                 const pairingCode = await client.requestPairingCode(NOMOR_BOT);
                 console.log('----------------------------');
-                console.log('KODE PAIRING LU ADALAH: ' + pairingCode);
+                console.log('KODE PAIRING LU: ' + pairingCode);
                 console.log('----------------------------');
-                console.log('Masukkan kode di atas ke WhatsApp HP lu!');
             } catch (err) {
-                console.log('Gagal ambil kode, coba stop (CTRL+C) terus jalanin lagi.');
-                console.log('Detail Error:', err.message);
+                console.log('Gagal ambil kode. Detail:', err.message);
             }
-        }, 10000);
+        }, 15000);
 
     } catch (err) {
         console.log('Gagal Inisialisasi:', err.message);
