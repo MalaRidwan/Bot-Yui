@@ -3,7 +3,7 @@ const qrcode = require('qrcode-terminal');
 const axios = require('axios');
 
 // --- PENGATURAN BOT ---
-const API_KEY_GEMINI = 'AIzaSyBzxNr68JjBPG4wNC9NK-hl9opRDQ1kBaw'; 
+const API_KEY_GEMINI = 'AIzaSyAy1MXu4ASmNAj1bBfIywgp9VpSDC4t4W8'; // API KEY SEGER LU
 const URL_GEMINI = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
 
 const client = new Client({
@@ -24,36 +24,40 @@ const client = new Client({
     }
 });
 
-// Munculin QR Code di Terminal
+// Event buat munculin QR Code
 client.on('qr', (qr) => {
     console.log('----------------------------');
-    console.log('SCAN QR DI BAWAH INI WAN:');
+    console.log('SCAN QR INI PAKE NOMOR BOT LU:');
     qrcode.generate(qr, { small: true });
     console.log('----------------------------');
 });
 
 client.on('ready', () => {
     console.log('----------------------------');
-    console.log('YUI V.72 ONLINE!');
-    console.log('Tester lu (0895320302320) udah bisa chat sekarang.');
+    console.log('BOT YUI V.73 ONLINE, WAN!');
+    console.log('Siap nerima tester dari 0895320302320');
     console.log('----------------------------');
 });
 
 client.on('message', async (msg) => {
-    // Filter khusus buat nomor tester lu
+    // Lu mau filter tester pake nomor lu sendiri kan?
     if (msg.from === '62895320302320@c.us') {
         try {
+            console.log('Ada pesan masuk dari tester: ' + msg.body);
+            
             const response = await axios.post(`${URL_GEMINI}?key=${API_KEY_GEMINI}`, {
                 contents: [{ parts: [{ text: msg.body }] }]
             });
+            
             const aiReply = response.data.candidates[0].content.parts[0].text;
             msg.reply(aiReply);
+            
         } catch (error) {
-            console.error('Error Gemini:', error.message);
+            console.error('Error Gemini:', error.response ? error.response.data : error.message);
         }
     }
 });
 
-// Inisialisasi Bot
-console.log('LAGI NYALAIN BROWSER, TUNGGUIN BENTAR...');
+// Inisialisasi
+console.log('MENYALAKAN MESIN... TUNGGU QR MUNCUL');
 client.initialize();
