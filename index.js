@@ -10,17 +10,15 @@ const URL_GEMINI = 'https://generativelanguage.googleapis.com/v1beta/models/gemi
 const client = new Client({
     authStrategy: new LocalAuth(),
     puppeteer: {
-        // JALAN NINJA BUAT TERMUX:
         executablePath: '/data/data/com.termux/files/usr/bin/chromium', 
         handleSIGINT: false,
         args: [
             '--no-sandbox', 
             '--disable-setuid-sandbox',
             '--disable-dev-shm-usage',
-            '--disable-accelerated-2d-canvas',
             '--no-first-run',
             '--no-zygote',
-            '--single-process', // Biar hemat RAM di HP lu
+            '--single-process',
             '--disable-gpu'
         ]
     }
@@ -33,8 +31,7 @@ client.on('qr', (qr) => {
 
 client.on('ready', () => {
     console.log('----------------------------');
-    console.log('Yui V.69 UDAH ONLINE, WAN!');
-    console.log('Siap tempur di Termux Poco X6.');
+    console.log('Yui V.70 ONLINE! SIAP TEMPUR!');
     console.log('----------------------------');
 });
 
@@ -47,22 +44,34 @@ client.on('message', async (msg) => {
             const aiReply = response.data.candidates[0].content.parts[0].text;
             msg.reply(aiReply);
         } catch (error) {
-            console.error('Error Gemini:', error.response ? error.response.data : error.message);
+            console.error('Error Gemini:', error.message);
         }
     }
 });
 
 async function startBot() {
     try {
-        console.log('SEDANG MENGAMBIL KODE PAIRING...');
+        console.log('SEDANG MENGINISIALISASI BROWSER...');
         await client.initialize();
-        const pairingCode = await client.requestPairingCode(NOMOR_BOT);
-        console.log('----------------------------');
-        console.log('KODE PAIRING LU ADALAH:', pairingCode);
-        console.log('----------------------------');
-        console.log('Buka WA Nomor Bot > Perangkat Tautan > Tautkan dg nomor telepon.');
+        
+        // Jeda 10 detik biar halaman WA Web ke-load sempurna sebelum minta kode
+        console.log('MENUNGGU KONEKSI STABIL (10 DETIK)...');
+        setTimeout(async () => {
+            try {
+                console.log('MENGAMBIL KODE PAIRING UNTUK: ' + NOMOR_BOT);
+                const pairingCode = await client.requestPairingCode(NOMOR_BOT);
+                console.log('----------------------------');
+                console.log('KODE PAIRING LU ADALAH: ' + pairingCode);
+                console.log('----------------------------');
+                console.log('Masukkan kode di atas ke WhatsApp HP lu!');
+            } catch (err) {
+                console.log('Gagal ambil kode, coba stop (CTRL+C) terus jalanin lagi.');
+                console.log('Detail Error:', err.message);
+            }
+        }, 10000);
+
     } catch (err) {
-        console.log('Error detail:', err.message);
+        console.log('Gagal Inisialisasi:', err.message);
     }
 }
 
