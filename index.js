@@ -4,7 +4,7 @@ const axios = require('axios');
 
 // --- PENGATURAN BOT ---
 const API_KEY_GEMINI = 'AIzaSyAy1MXu4ASmNAj1bBfIywgp9VpSDC4t4W8'; // API KEY SEGER LU
-const URL_GEMINI = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
+const URL_GEMINI = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
 
 const client = new Client({
     authStrategy: new LocalAuth(),
