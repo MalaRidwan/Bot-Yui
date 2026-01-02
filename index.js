@@ -3,7 +3,6 @@ const qrcode = require('qrcode-terminal');
 const axios = require('axios');
 
 // --- PENGATURAN BOT ---
-const NOMOR_BOT = '6285156906427'; // Ganti ke nomor WA yang mau jadi bot (pake 628)
 const API_KEY_GEMINI = 'AIzaSyBzxNr68JjBPG4wNC9NK-hl9opRDQ1kBaw'; 
 const URL_GEMINI = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
 
@@ -20,26 +19,28 @@ const client = new Client({
             '--no-zygote',
             '--single-process',
             '--disable-gpu',
-            // Penyamaran biar gak error "Evaluation failed: t"
             '--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
         ]
     }
 });
 
+// Munculin QR Code di Terminal
 client.on('qr', (qr) => {
-    console.log('SCAN QR INI JIKA PAIRING GAGAL:');
+    console.log('----------------------------');
+    console.log('SCAN QR DI BAWAH INI WAN:');
     qrcode.generate(qr, { small: true });
+    console.log('----------------------------');
 });
 
 client.on('ready', () => {
     console.log('----------------------------');
-    console.log('BOT YUI ONLINE, WAN!');
-    console.log('Silakan tes chat dari 0895320302320');
+    console.log('YUI V.72 ONLINE!');
+    console.log('Tester lu (0895320302320) udah bisa chat sekarang.');
     console.log('----------------------------');
 });
 
 client.on('message', async (msg) => {
-    // Lu cuma mau tes pake nomor lu kan? Ini filternya:
+    // Filter khusus buat nomor tester lu
     if (msg.from === '62895320302320@c.us') {
         try {
             const response = await axios.post(`${URL_GEMINI}?key=${API_KEY_GEMINI}`, {
@@ -53,27 +54,6 @@ client.on('message', async (msg) => {
     }
 });
 
-async function startBot() {
-    try {
-        console.log('INISIALISASI...');
-        await client.initialize();
-        
-        console.log('MENUNGGU 15 DETIK (BIAR STABIL)...');
-        setTimeout(async () => {
-            try {
-                console.log('MINTA KODE PAIRING...');
-                const pairingCode = await client.requestPairingCode(NOMOR_BOT);
-                console.log('----------------------------');
-                console.log('KODE PAIRING LU: ' + pairingCode);
-                console.log('----------------------------');
-            } catch (err) {
-                console.log('Gagal ambil kode. Detail:', err.message);
-            }
-        }, 15000);
-
-    } catch (err) {
-        console.log('Gagal Inisialisasi:', err.message);
-    }
-}
-
-startBot();
+// Inisialisasi Bot
+console.log('LAGI NYALAIN BROWSER, TUNGGUIN BENTAR...');
+client.initialize();
